@@ -1,6 +1,6 @@
 <template>
-    <div class="container mx-auto mb-4 border-b-2 border-gray-200 shadow-md">
-        <div class="navbar bg-primary text-primary-content">
+    <div class="container mx-auto mb-4 border-b-2 border-gray-200 shadow-md ">
+        <div class="navbar bg-primary text-primary-content ">
   <div class="navbar-start">
     <div class="dropdown">
       <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
@@ -17,42 +17,43 @@
             d="M4 6h16M4 12h8m-8 6h16" />
         </svg>
       </div>
-      <ul
+      <ul  
         tabindex="0"
-        class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
-        <li><a>Item 1</a></li>
-        <li>
-          <a>Parent</a>
-          <ul class="p-2">
-            <li><a>Submenu 1</a></li>
-            <li><a>Submenu 2</a></li>
-          </ul>
-        </li>
-        <li><a>Item 3</a></li>
+        class=" menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
+        <li  v-for="nav_path in navPaths" :key="nav_path.path" :class="{ 'bg-secondary': isActive(nav_path.path) }">
+        <NuxtLink :to="nav_path.path">{{ nav_path.name }}</NuxtLink>
+      </li>
       </ul>
     </div>
     <a class="btn btn-ghost text-xl">daisyUI</a>
   </div>
   <div class="navbar-center hidden lg:flex">
-    <ul class="menu menu-horizontal px-1">
-      <li><a>Item 1</a></li>
-      <li>
-        <details>
-          <summary>Parent</summary>
-          <ul class="p-2">
-            <li><a>Submenu 1</a></li>
-            <li><a>Submenu 2</a></li>
-          </ul>
-        </details>
+    <ul v-for="nav_path in navPaths" :key="nav_path.path" class="menu menu-horizontal px-1" :class="{ 'bg-secondary': isActive(nav_path.path) }">
+      <li >
+        <NuxtLink :to="nav_path.path">{{ nav_path.name }}</NuxtLink>
       </li>
-      <li><a>Item 3</a></li>
     </ul>
   </div>
   <div class="navbar-end">
   </div>
 </div>
+<p class="w-full bg-black"></p>
     </div>
-    <div>
+    <div >
       <slot />
     </div>
 </template>
+
+<script setup>
+const navPaths = [
+  { name: 'หน้าแรก', path: '/' },
+  { name: 'แจ้งปัญหา', path: '/task' },
+]
+
+const route = useRoute()
+
+const isActive = (routePath) => {
+  return route.path === routePath
+}
+
+</script>
