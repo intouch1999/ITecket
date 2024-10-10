@@ -21,8 +21,8 @@
           <div class="label">
             <span class="label-text">ประเภท</span>
           </div>
-          <select v-model="form.catagory"  class="select select-bordered w-full">
-            <option disabled selected>SELECT</option> 
+            <select v-model="form.category"  class="select select-bordered w-full">
+            <option disabled value="">SELECT</option>
             <option>HardWare</option>
             <option>SoftWare</option>
             <option>Network</option>
@@ -61,7 +61,7 @@
             <span class="label-text">ผู้รับ</span>
           </div>
           <select v-model="form.recipient" class="select select-bordered w-full">
-            <option disabled selected>Who shot first?</option>
+            <option disabled value="">Who shot first?</option>
             <option>Han Solo</option>
             <option>Greedo</option>
           </select>
@@ -74,13 +74,14 @@
            <p>ยืนยันการแจ้งปัญหาใช่หรือไม่</p>
         </template>
         <template #action>
-          <button @click="ModalState = false" type="submit" class="btn btn-primary ">ยืนยัน</button>
+          <button @click="submitForm" type="button" class="btn btn-primary">ยืนยัน</button>
         </template>
         </Modal>
-        <button @click="ModalState = true" type="submit" class="btn btn-primary w-3/4 sm:w-1/4 mx-auto block">ยืนยัน</button>
+        <button @click="openModal" type="submit" class="btn btn-primary w-3/4 sm:w-1/4 mx-auto block">ยืนยัน</button>
       </div>
     </form>
   </div>
+  <Alert :is-open="isAlertOpen" :status="alertStatus"  @close="closeAlert" :message="alertMessage"/>
 </template>
 
 <script setup>
@@ -94,6 +95,9 @@ const form = reactive({
 })
 
 const ModalState = ref(null);
+const isAlertOpen = ref(false);
+const alertStatus = ref('success');
+const alertMessage = ref('');
 
 // เปิด Modal
 const openModal = () => {
@@ -118,20 +122,59 @@ const removeFile = (index) => {
     URL.revokeObjectURL(form.files[index].preview)
   }
   form.files.splice(index, 1)
+  
 }
 
-const submitForm = () => {
-  console.log('Form submitted:', {
-    ...form,
-    files: form.files.map(f => f.file)
-  })
-  form.title = ''
-  form.detail = ''
-  form.category = ''
-  form.recipient = ''
-  form.files.forEach(file => {
-    if (file.preview) URL.revokeObjectURL(file.preview)
-  })
-  form.files = []
+const submitForm = async () => {
+  try {
+    // Simulate an API call
+    await new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (Math.random() > 0.5) {
+          resolve();
+        } else {
+          reject(new Error('Submission failed'));
+        }
+      }, 1000);
+    });
+
+    console.log('Form submitted:', {
+      ...form,
+      files: form.files.map(f => f.file)
+    });
+    
+    // Reset form fields
+    form.title = '';
+    form.detail = '';
+    form.category = '';
+    form.recipient = '';
+    form.files.forEach(file => {
+      if (file.preview) URL.revokeObjectURL(file.preview);
+    });
+    form.files = [];
+
+    // Show success alert
+    showAlert('success', 'แจ้งปัญหา');
+  } catch (error) {
+    // Show error alert
+    showAlert('error', 'แจ้งปัญหา');
+  } finally {
+    // Close the modal
+    ModalState.value = false;
+  }
 }
+
+const showAlert = (status, message) => {
+  alertStatus.value = status;
+  alertMessage.value = message;
+  isAlertOpen.value = true;
+  
+  // Automatically close the alert after 3 seconds
+  setTimeout(closeAlert, 3000);
+}
+
+const closeAlert = () => {
+  isAlertOpen.value = false;
+}
+
 </script>
