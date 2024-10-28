@@ -9,7 +9,7 @@
           <div class="label">
             <span class="label-text">เรื่องที่ต้องการแจ้ง</span>
           </div>
-          <input v-model="form.title" type="text" placeholder="ตาลือตกบ้าน" class="input input-bordered w-full  " />
+          <input v-model="form.title" type="text" placeholder="เรื่องที่ต้องการแจ้ง..." class="input input-bordered w-full  " />
         </label>
         <label class="form-control w-full  sm:w-3/4 mb-2">
           <div class="label">
