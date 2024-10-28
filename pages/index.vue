@@ -1,9 +1,7 @@
 <template>
   <div class="bg-red-200">
-    <div
-      class="relative left-0 -bottom-4 z-10 mx-auto w-full md:w-4/5 flex flex-row"
-    >
-      <div role="tablist" class="tabs tabs-boxed border-2 border-red-200">
+    <div class="relative left-0 -bottom-4 z-10 mx-auto w-full md:w-4/5 flex flex-row">
+      <div role="tablist" class="tabs tabs-boxed border-2 border-primary shadow">
         <a
           v-for="tab in tabs"
           :key="tab.value"
@@ -11,17 +9,24 @@
           class="tab"
           :class="{ 'tab-active': currentTab === tab.value }"
           @click="currentTab = tab.value"
-          >{{ tab.label }}</a
-        >
+        >{{ tab.label }}</a>
       </div>
     </div>
-    <div
-      class="container mx-auto w-full md:w-4/5 min-h-screen h-full card bg-primary rounded-2xl border-2 border-red-200 shadow-2xl"
-    >
+    <div class="container mx-auto w-full md:w-4/5 min-h-screen h-full card bg-primary rounded-2xl border-2 border-red-200 shadow-2xl">
       <div class="w-full flex flex-row p-4"></div>
-      <div v-if="loading" class="text-center mt-8">
+      <div class="w-1/2 flex flex-row p-4 bg-secondary text-primary-content rounded-r-2xl mb-4">
+        <input type="checkbox" class="checkbox mr-2" :checked="isAllSelected" @change="handleSelectAll" />
+        <p>เลือกทั้งหมด</p>
+      </div>
+      <div class="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3  p-2">
+      <div v-if="error" class="text-center mt-8 text-error">
+        {{ error }}
+      </div>
+
+      <div v-else-if="loading" class=" w-full text-center mt-8">
         <span class="loading loading-infinity loading-lg"></span>
       </div>
+
       <div
         v-else
         v-for="(task, index) in filteredTasks"
@@ -35,9 +40,11 @@
         </div>
         <div class="grid grid-cols-[auto_1fr_auto] justify-between gap-2">
           <div class="flex items-center">
-            <input type="checkbox" class="checkbox" 
-                       :checked="isAllSelected"
-            @change="handleSelectAll"
+            <input
+              type="checkbox"
+              class="checkbox"
+              :checked="selectedTasks.includes(task.id)"
+              @change="toggleTaskSelection(task.id)"
             />
           </div>
           <div class="flex flex-col flex-grow">
@@ -49,7 +56,7 @@
             </div>
           </div>
           <div class="flex justify-end items-center">
-            <button @click="handledInfo(task.id)" class="bg-primary text-primary-content rounded-full p-2">
+            <button @click="handledInfo(task.id)" class="bg-primary text-primary-content rounded-full p-2 hover:bg-secondary duration-300 transition-colors">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -74,7 +81,11 @@
       <div class="w-full flex flex-row p-4"></div>
     </div>
   </div>
-  <div v-if="selectedTasks.length > 0" class="fixed bottom-0 left-0 right-0 w-full flex flex-col bg-secondary text-primary-content p-4">
+</div>
+  <div
+    v-if="selectedTasks.length > 0"
+    class="fixed bottom-0 left-0 right-0 w-full flex flex-col bg-secondary text-primary-content p-4"
+  >
     <div class="text-center my-2">
       ต้องการดำเนินการยกเลิก {{ selectedTasks.length }} รายการใช่หรือไม่
     </div>
@@ -90,9 +101,13 @@
 </template>
 
 <script setup>
+import { ref, computed, onMounted } from 'vue';
 const supabase = useSupabase();
 
 const loading = ref(false);
+const error = ref(null);
+const tasks = ref([]);
+
 const tabs = [
   { label: "ดำเนินการ", value: "Pending" },
   { label: "เสร็จสิ้น", value: "Success" },
@@ -100,36 +115,48 @@ const tabs = [
 ];
 
 const currentTab = ref("Pending");
-const CancelConfirm = ref(false);
 const selectedTasks = ref([]);
 
-const { data: GetTasks } = await useAsyncData(async () => {
-  loading.value = true;
-  const { data, error } = await supabase.from("tasks_it").select("*");
-  if (error) throw new Error(error.message);
-  loading.value = false;
-  return data;
+const fetchTasks = async () => {
+  try {
+    loading.value = true;
+    error.value = null;
+    const { data, error: supabaseError } = await supabase
+      .from("tasks_it")
+      .select("*");
+    
+    if (supabaseError) throw new Error(supabaseError.message);
+    
+    tasks.value = data;
+  } catch (err) {
+    error.value = err.message;
+    console.error('Error fetching tasks:', err);
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(() => {
+  fetchTasks();
 });
 
 const FormatTask = computed(() => {
-  return GetTasks.value?.map((item) => ({
+  return tasks.value?.map((item) => ({
     ...item,
-    limitText: limitText(item.comm, 25),
+    limitText: limitText(item.comm, 40),
     formatedTask: formatDate(item.updated_at),
   }));
 });
-
-// const filteredTasks = computed(() => {
-//   return FormatTask.value.filter((task) => task.status === currentTab.value);
-// });
 
 const filteredTasks = computed(() => {
   return FormatTask.value?.filter((task) => task.status === currentTab.value) || [];
 });
 
 const isAllSelected = computed(() => {
-  return filteredTasks.value.length > 0 && 
-         filteredTasks.value.every(task => selectedTasks.value.includes(task.id));
+  return (
+    filteredTasks.value.length > 0 &&
+    filteredTasks.value.every((task) => selectedTasks.value.includes(task.id))
+  );
 });
 
 const formatDate = (dateString) => {
@@ -156,8 +183,39 @@ const handleSelectAll = () => {
   if (isAllSelected.value) {
     selectedTasks.value = [];
   } else {
-    selectedTasks.value = filteredTasks.value.map(task => task.id);
+    selectedTasks.value = filteredTasks.value.map((task) => task.id);
   }
 };
 
+const toggleTaskSelection = (taskId) => {
+  if (selectedTasks.value.includes(taskId)) {
+    selectedTasks.value = selectedTasks.value.filter((id) => id !== taskId);
+  } else {
+    selectedTasks.value.push(taskId);
+  }
+};
+
+const clearSelection = () => {
+  selectedTasks.value = [];
+};
+
+const handleConfirmCancel = async () => {
+  try {
+    loading.value = true;
+    const { error: updateError } = await supabase
+      .from('tasks_it')
+      .update({ status: 'Cancel' })
+      .in('id', selectedTasks.value);
+
+    if (updateError) throw new Error(updateError.message);
+    
+    selectedTasks.value = [];
+    await fetchTasks(); // Refresh the tasks after update
+  } catch (err) {
+    error.value = err.message;
+    console.error('Error updating tasks:', err);
+  } finally {
+    loading.value = false;
+  }
+};
 </script>
