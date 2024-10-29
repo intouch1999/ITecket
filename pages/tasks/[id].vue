@@ -44,13 +44,20 @@
               <span class="ml-4 text-primary text-base">{{ task.type }}</span>
             </div>
           </div>
-          <div class="card p-4 bg-gray-200">
+          <div class="card p-4 bg-gray-200 mb-4">
             <div class="flex flex-col">
               <span class="text-lg">รายละเอียดงาน: </span>
               <p class="text-primary text-base text-start">{{ task.comm }}</p>
             </div>
           </div>
         </div>
+        <div class="card p-4 bg-gray-200">
+            <div class="flex flex-col md:flex-row justify-center items-center">
+              <div v-if="images && images.length > 0" v-for="image in images" :key="image">
+                <img :src="image.file_path"   alt="Image" class="mb-4 md:mx-4 rounded-lg" style="width: 250px; height: 250px;" />
+              </div>
+            </div>
+          </div>
       </div>
     </div>
   </div>
@@ -80,4 +87,16 @@ const { data: GetTasks } = await useAsyncData(async () => {
   if (error) throw new Error(error.message);
   return data;
 });
+
+const { data:images  } = await useAsyncData(async () => {
+  const { data, error } = await supabase
+    .from("task_files")
+    .select("*")
+    .eq("task_id", id);
+  if (error) throw new Error(error.message);
+  console.log(data)
+  return data;
+});
+
+
 </script>
