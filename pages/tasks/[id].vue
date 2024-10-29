@@ -38,6 +38,12 @@
               <span class="ml-4 text-primary text-base">{{ task.name }}</span>
             </div>
           </div>
+          <div class="card p-4 bg-gray-200 mb-4">
+            <div class="flex flex-row items-center">
+              <span class="text-lg">ประเภท: </span>
+              <span class="ml-4 text-primary text-base">{{ task.type }}</span>
+            </div>
+          </div>
           <div class="card p-4 bg-gray-200">
             <div class="flex flex-col">
               <span class="text-lg">รายละเอียดงาน: </span>
