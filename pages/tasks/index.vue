@@ -198,45 +198,122 @@ const removeFile = (index) => {
   form.files.splice(index, 1);
 };
 
+// const submitForm = async () => {
+//   try {
+//     const { data, error } = await supabase.from("tasks_it").insert({
+//       name: form.title,
+//       comm: form.detail,
+//       type: form.category,
+//       role: form.recipient,
+//       status: "Pending",
+//       filename: form.files.map((f) => f.file),
+//       created_at: new Date().toISOString(),
+//       updated_at: new Date().toISOString(),
+//     });
+//     if (error) throw new Error(error.message);
+
+//     console.log("Form submitted:", {
+//       ...form,
+//       files: form.files.map((f) => f.file),
+//     });
+
+//     // Reset form fields
+//     form.title = "";
+//     form.detail = "";
+//     form.category = "";
+//     form.recipient = "";
+//     form.files.forEach((file) => {
+//       if (file.preview) URL.revokeObjectURL(file.preview);
+//     });
+//     form.files = [];
+
+//     // Show success alert
+//     showAlert("success", "แจ้งปัญหา");
+//   } catch (error) {
+//     // Show error alert
+//     showAlert("error", "แจ้งปัญหา");
+//   } finally {
+//     // Close the modal
+//     ModalState.value = false;
+//   }
+// };
+
+// components/TaskForm.vue (modified submitForm function)
 const submitForm = async () => {
   try {
-    const { data, error } = await supabase.from("tasks_it").insert({
-      name: form.title,
-      comm: form.detail,
-      type: form.category,
-      role: form.recipient,
-      status: "Pending",
-      filename: form.files.map((f) => f.file),
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    });
-    if (error) throw new Error(error.message);
+    // 1. Upload files first
+    let uploadResult = { data: [] }
+    
+    if (form.files.length > 0) {
+      const formData = new FormData()
+      form.files.forEach((fileObj, index) => {
+        formData.append('file', fileObj.file)
+      })
 
-    console.log("Form submitted:", {
-      ...form,
-      files: form.files.map((f) => f.file),
-    });
+      const uploadResponse = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      })
+      
+      uploadResult = await uploadResponse.json()
+      
+      if (uploadResult.status === 'error') {
+        throw new Error(uploadResult.message)
+      }
+    }
 
-    // Reset form fields
-    form.title = "";
-    form.detail = "";
-    form.category = "";
-    form.recipient = "";
+    // 2. Save task data
+    const { data: taskData, error: taskError } = await supabase
+      .from("tasks_it")
+      .insert({
+        name: form.title,
+        comm: form.detail,
+        type: form.category,
+        role: form.recipient,
+        status: "Pending",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .select()
+
+    if (taskError) throw taskError
+
+    // 3. Save file records only if files were uploaded
+    if (uploadResult.data.length > 0) {
+      const fileRecords = uploadResult.data.map(file => ({
+        task_id: taskData[0].id,
+        file_name: file.fileName,
+        original_name: file.originalName,
+        file_type: file.fileType,
+        file_path: file.filePath,
+        file_size: file.fileSize
+      }))
+
+      const { error: filesError } = await supabase
+        .from("task_files")
+        .insert(fileRecords)
+
+      if (filesError) throw filesError
+    }
+
+    // Reset form
+    form.title = ""
+    form.detail = ""
+    form.category = ""
+    form.recipient = ""
     form.files.forEach((file) => {
-      if (file.preview) URL.revokeObjectURL(file.preview);
-    });
-    form.files = [];
+      if (file.preview) URL.revokeObjectURL(file.preview)
+    })
+    form.files = []
 
-    // Show success alert
-    showAlert("success", "แจ้งปัญหา");
+    showAlert("success", "บันทึกข้อมูลสำเร็จ")
   } catch (error) {
-    // Show error alert
-    showAlert("error", "แจ้งปัญหา");
+    console.error('Error submitting form:', error)
+    showAlert("error", `เกิดข้อผิดพลาดในการบันทึกข้อมูล: ${error.message}`)
   } finally {
-    // Close the modal
-    ModalState.value = false;
+    ModalState.value = false
   }
-};
+}
 
 const showAlert = (status, message) => {
   alertStatus.value = status;
