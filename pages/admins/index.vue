@@ -1,6 +1,7 @@
 <template>
   <div class="bg-red-200">
-    <div class="container mx-auto w-full md:w-4/5 p-4">
+    <div class="container mx-auto w-full md:w-4/5 p-4 min-h-screen h-auto">
+      <div class="">
       <div class="container mx-auto w-full md:w-4/5 mb-4">
         <div class="bg-base-200 collapse">
           <input type="checkbox" class="peer" />
@@ -12,17 +13,49 @@
           <div
             class="collapse-content bg-primary text-primary-content peer-checked:bg-accent peer-checked:text-accent-content"
           >
-            <div>
-              <input
-                type="text"
-                placeholder="Search..."
-                class="input input-bordered w-full"
-              />
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
+              <!-- Search Input -->
+              <div class="form-control">
+                <input
+                  v-model="searchQuery"
+                  type="text"
+                  placeholder="ค้นหาด้วย ID หรือ ชื่อ..."
+                  class="input input-bordered w-full"
+                  @input="updateFilters"
+                />
+              </div>
+              
+              <!-- Status Filter -->
+              <div class="form-control">
+                <select 
+                  v-model="selectedStatus"
+                  class="select select-bordered w-full"
+                  @change="updateFilters"
+                >
+                  <option value="">สถานะทั้งหมด</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Success">Success</option>
+                  <option value="Cancel">Cancel</option>
+                  <option value="In Progress">In Progress</option>
+                </select>
+              </div>
+
+              <!-- Clear Filters -->
+              <div class="form-control">
+                <button 
+                  class="btn btn-secondary"
+                  @click="clearFilters"
+                >
+                  ล้างการค้นหา
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="card py-4 px-2 mx-auto  w-full md:w-4/5 bg-accent min-h-fit h-auto overflow-x-auto">
+
+      <!-- Table Section -->
+      <div class="card px-2 mx-auto w-full md:w-4/5 bg-accent h-dvh">
         <table class="table w-full text-center">
           <thead>
             <tr>
@@ -37,7 +70,7 @@
           <tbody>
             <tr
               class="hover:bg-secondary"
-              v-for="task in FormatTask"
+              v-for="task in filteredTasks"
               :key="task.id"
             >
               <td>
@@ -50,12 +83,11 @@
                   'badge badge-success': task.status === 'Success',
                   'badge badge-error': task.status === 'Cancel',
                   'badge badge-warning': task.status === 'Pending',
-                  'badge badge-primary': task.status === 'In Progress' // เพิ่มสถานะใหม่ถ้าต้องการ
+                  'badge badge-primary': task.status === 'In Progress'
                 }">
                   {{ task.status }}
                 </span>
               </td>
-
               <td class="whitespace-nowrap">{{ task.formatedTask }}</td>
               <td>
                 <div class="dropdown dropdown-hover">
@@ -74,13 +106,20 @@
                     </li>
                   </ul>
                 </div>
-
               </td>
             </tr>
           </tbody>
         </table>
+
+        <!-- No Results Message -->
+        <div v-if="filteredTasks.length === 0" class="text-center py-4">
+          <p class="text-gray-500">ไม่พบข้อมูลที่ค้นหา</p>
+        </div>
       </div>
     </div>
+
+
+    <!-- Confirmation Modal -->
     <div v-if="showModal" class="fixed bottom-0 left-0 right-0 w-full flex flex-col bg-secondary text-primary-content p-4">
       <div class="text-center my-2">
         ต้องการดำเนินการ {{ actionType }} สำหรับ Task ID: {{ selectedTaskId }} ใช่หรือไม่
@@ -92,32 +131,96 @@
         <button class="btn btn-sm" @click="clearAction">
           ยกเลิก
         </button>
-      </div>
+      </div>  
+    </div>
     </div>
   </div>
 </template>
 
 <script setup>
 const supabase = useSupabase();
+const route = useRoute();
+const router = useRouter();
 
+// State
 const table = ref([]);
 const showModal = ref(false);
-let selectedTaskId = ref(null);
-let actionType = ref('');
+const selectedTaskId = ref(null);
+const actionType = ref('');
+const searchQuery = ref('');
+const selectedStatus = ref('');
 
+// Initialize filters from URL
+onMounted(async () => {
+  // Get initial values from URL
+  searchQuery.value = route.query.search || '';
+  selectedStatus.value = route.query.status || '';
+  
+  await listTasks();
+});
+
+// Watch for route changes
+watch(
+  () => route.query,
+  (newQuery) => {
+    searchQuery.value = newQuery.search || '';
+    selectedStatus.value = newQuery.status || '';
+  }
+);
+
+// Methods
 const listTasks = async () => {
-  const { data, error } = await supabase
-    .from("tasks_it")
-    .select("*")
-    .order("updated_at", { ascending: false });
+  try {
+    const { data, error } = await supabase
+      .from("tasks_it")
+      .select("*")
+      .order("updated_at", { ascending: false });
 
-  if (error) throw new Error(error.message);
-  table.value = data;
-  return data;
+    if (error) throw error;
+    table.value = data;
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+  }
 };
 
-const FormatTask = computed(() => {
-  return table.value?.map((item) => ({
+const updateFilters = () => {
+  // Update URL with current filters
+  const query = {};
+  if (searchQuery.value) query.search = searchQuery.value;
+  if (selectedStatus.value) query.status = selectedStatus.value;
+  
+  // Update URL without refreshing the page
+  router.push({ query });
+};
+
+const clearFilters = () => {
+  searchQuery.value = '';
+  selectedStatus.value = '';
+  router.push({ query: {} });
+};
+
+// Computed
+const filteredTasks = computed(() => {
+  let filtered = table.value;
+
+  // Apply search filter
+  if (searchQuery.value) {
+    const search = searchQuery.value.toLowerCase();
+    filtered = filtered.filter(task => 
+      task.id.toString().includes(search) ||
+      task.name.toLowerCase().includes(search)
+    );
+  }
+
+  // Apply status filter
+  if (selectedStatus.value) {
+    filtered = filtered.filter(task => 
+      task.status === selectedStatus.value
+    );
+  }
+
+  // Format dates
+  return filtered.map((item) => ({
     ...item,
     formatedTask: formatDate(item.created_at),
   }));
@@ -144,14 +247,15 @@ const handleConfirm = async () => {
   if (selectedTaskId.value) {
     const newStatus = actionType.value === 'Success' ? 'Success' : 'Cancel';
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("tasks_it")
-        .update({ status: newStatus,
+        .update({ 
+          status: newStatus,
           updated_at: new Date().toISOString()
-         })
+        })
         .eq("id", selectedTaskId.value);
       
-      if (error) throw new Error(error.message);
+      if (error) throw error;
       await listTasks();
     } catch (err) {
       console.error("Error updating tasks:", err);
@@ -166,8 +270,4 @@ const clearAction = () => {
   selectedTaskId.value = null;
   actionType.value = '';
 };
-
-onMounted(() => {
-  listTasks();
-});
 </script>
