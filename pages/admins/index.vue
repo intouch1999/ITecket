@@ -1,6 +1,6 @@
 <template>
   <div class="bg-red-200">
-    <div class="container mx-auto w-full md:w-4/5 p-4 min-h-screen h-auto">
+    <div class="container mx-auto w-full md:w-4/5 p-4 min-h-[75vh] h-auto">
       <div class="">
       <div class="container mx-auto w-full md:w-4/5 mb-4">
         <div class="bg-base-200 collapse">
@@ -55,7 +55,7 @@
       </div>
 
       <!-- Table Section -->
-      <div class="card px-2 mx-auto w-full md:w-4/5 bg-accent h-dvh">
+      <div class="card p-4 w-full md:w-full bg-accent overflow-x-auto">
         <table class="table w-full text-center">
           <thead>
             <tr>

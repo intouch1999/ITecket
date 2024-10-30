@@ -9,9 +9,9 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
             </svg>
           </div>
-          <ul tabindex="0" class="   menu menu-lg w-52 dropdown-content bg-base-100 rounded-box z-20 mt-3 p-2 shadow">
+          <ul tabindex="0" class="  menu menu-lg w-52 dropdown-content bg-primary text-white-content rounded-box z-20 mt-3 p-2 shadow">
             <li v-for="nav_path in navPaths" :key="nav_path.path">
-              <NuxtLink :to="nav_path.path" :class="{ 'bg-secondary ': isActive(nav_path.path) }">{{ nav_path.name }}
+              <NuxtLink :to="nav_path.path" :class="{ 'bg-primary ': isActive(nav_path.path) }">{{ nav_path.name }}
               </NuxtLink>
             </li>
           </ul>
