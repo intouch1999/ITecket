@@ -14,7 +14,7 @@
               v-for="taskStatus in sliced"
               :key="taskStatus.value"
               :class="{
-                'step step-primary': taskStatus.value === GetTasks[0].status,
+                'step step-primary': taskStatus.value === GetTasks[0].status || taskStatus.value === 'Pending',
               }"
               class="step"
             >
