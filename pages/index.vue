@@ -15,7 +15,7 @@
     <div class="container mx-auto w-full md:w-4/5 min-h-screen h-full card bg-primary rounded-2xl border-2 border-red-200 shadow-2xl">
       <div class="w-full flex flex-row p-4"></div>
       <div class="w-1/2 flex flex-row p-4 bg-secondary text-primary-content rounded-r-2xl mb-4">
-        <input type="checkbox" class="checkbox mr-2" :checked="isAllSelected" @change="handleSelectAll" />
+        <input :disabled="currentTab !== 'Pending'" type="checkbox" class="checkbox mr-2" :checked="isAllSelected" @change="handleSelectAll" />
         <p>เลือกทั้งหมด</p>
       </div>
       <div class="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3  p-2">
@@ -24,7 +24,7 @@
       </div>
 
       <div v-else-if="loading" class="col-span-3 w-full text-center mt-8">
-        <span class="loading loading-ring loading-lg text-secondary"></span>
+        <Loading />
       </div>
 
       <div
@@ -45,13 +45,14 @@
               class="checkbox"
               :checked="selectedTasks.includes(task.id)"
               @change="toggleTaskSelection(task.id)"
+              :disabled="task.status !== 'Pending'"
             />
           </div>
-          <div class="flex flex-col flex-grow">
+          <div class="flex flex-col flex-grow" :class="{ 'line-through': task.status !== 'Pending'}">
             <div class="w-full mt-2">
               <span>{{ task.name }}</span>
             </div>
-            <div class="w-full mt-2">
+            <div class="w-full mt-2" :class="{ 'line-through': task.status !== 'Pending'}">
               {{ task.limitText }}
             </div>
           </div>
