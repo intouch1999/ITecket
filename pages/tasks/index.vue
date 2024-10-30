@@ -11,13 +11,13 @@
           <div class="w-full mx-auto my-4 flex flex-col items-center">
             <label class="form-control w-full sm:w-3/4 mb-2">
               <div class="label">
-                <span class="label-text">เรื่องที่ต้องการแจ้ง</span>
+                <span class="label-text">เรื่องที่ต้องการแจ้ง <span class="text-white">{{ requseLabel }}</span></span>
               </div>
               <input
                 v-model="form.title"
                 type="text"
                 placeholder="เรื่องที่ต้องการแจ้ง..."
-                class="input input-bordered w-full"
+                :class="['input input-bordered w-full']"
               />
             </label>
             <label class="form-control w-full sm:w-3/4 mb-2">
@@ -32,7 +32,7 @@
             </label>
             <label class="form-control w-full sm:w-3/4 mb-4">
               <div class="label">
-                <span class="label-text">ประเภท</span>
+                <span class="label-text">ประเภท <span class="text-white">{{ requseLabel }}</span></span>
               </div>
               <select
                 v-model="form.category"
@@ -47,13 +47,18 @@
               </select>
             </label>
             <label for="file" class="form-control w-full sm:w-3/4 mb-2">
-              <input
+              <div class="btn btn-primary w-3/4 sm:w-1/4">
+                Upload File
+            </div>
+            </label>
+            <input
+                id="file"
                 type="file"
                 @change="handleFileUpload"
                 multiple
-                class="file-input file-input-bordered w-full max-w-xs"
+                class=" hidden w-full max-w-xs"
+                title=" "
               />
-            </label>
             <div v-if="form.files.length > 0" class="w-full sm:w-3/4 mb-4">
               <h3 class="text-lg font-semibold mb-2">ตัวอย่างไฟล์:</h3>
               <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -86,7 +91,7 @@
             </div>
             <label for="recipient" class="form-control w-full sm:w-3/4 mb-4">
               <div class="label">
-                <span class="label-text">ผู้รับผิดชอบ</span>
+                <span class="label-text">ผู้รับผิดชอบ <span class="text-white">{{ requseLabel }}</span></span>
               </div>
               <select
                 v-model="form.recipient"
@@ -144,6 +149,8 @@ const supabase = useSupabase();
 
 const empoyee = ref([]);
 
+const requseLabel = ref("จำเป็น*");
+
 const person = async () => {
   const { data, error } = await supabase
     .from("users")
@@ -173,8 +180,13 @@ const alertMessage = ref("");
 
 // เปิด Modal
 const openModal = () => {
+  if (!areRequiredFieldsFilled()) {
+    showAlert("error", "กรุณากรอกข้อมูลให้ครบถ้วน");
+    return;
+  }
   ModalState.value = true;
 };
+
 
 const handleFileUpload = (event) => {
   const newFiles = Array.from(event.target.files);
@@ -237,6 +249,15 @@ const removeFile = (index) => {
 //     ModalState.value = false;
 //   }
 // };
+
+const isTitleValid = computed(() => form.title.trim().length > 0);
+const isCategoryValid = computed(() => form.category.trim().length > 0);
+const isRecipientValid = computed(() => form.recipient.trim().length > 0);
+
+const areRequiredFieldsFilled = () => {
+  return isTitleValid.value && isCategoryValid.value && isRecipientValid.value;
+};
+
 
 // components/TaskForm.vue (modified submitForm function)
 const submitForm = async () => {
