@@ -41,7 +41,7 @@
 const navPaths = [
   { name: 'หน้าแรก', path: '/' },
   { name: 'แจ้งปัญหา', path: '/tasks' },
-  { name: 'แอดบิน' , path: '/admins'}
+  { name: 'แอดมิน' , path: '/admins'}
 ]
 
 const route = useRoute()
