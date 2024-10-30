@@ -11,7 +11,7 @@
           >
             &times;
           </button>
-        <div class="flex justify-center">
+        <div class=" relative">
 
           <transition name="zoom">
             <img
@@ -22,7 +22,7 @@
               loading="lazy"
               ismap=""
               decoding="auto"
-              width="50%"
+              
             />
           </transition>
         </div>
