@@ -100,6 +100,12 @@
     </div>
   </div>
 </div>
+<Alert
+        :is-open="isAlertOpen"
+        :status="alertStatus"
+        @close="closeAlert"
+        :message="alertMessage"
+      />
 </template>
 
 <script setup>
@@ -109,6 +115,9 @@ const supabase = useSupabase();
 const loading = ref(false);
 const error = ref(null);
 const tasks = ref([]);
+const isAlertOpen = ref(false);
+const alertStatus = ref("success");
+const alertMessage = ref("");
 
 const tabs = [
   { label: "ดำเนินการ", value: "Pending" },
@@ -211,18 +220,32 @@ const handleConfirmCancel = async () => {
     loading.value = true;
     const { error: updateError } = await supabase
       .from('tasks_it')
-      .update({ status: 'Cancel' })
+      .update({ status: 'Cancel' , updated_at: new Date().toISOString() })
       .in('id', selectedTasks.value);
 
     if (updateError) throw new Error(updateError.message);
-    
+    showAlert("success", `ยกเลิกรายการสำเร็จ จำนวน ${selectedTasks.value.length} รายการ`);
     selectedTasks.value = [];
     await fetchTasks(); // Refresh the tasks after update
   } catch (err) {
     error.value = err.message;
     console.error('Error updating tasks:', err);
+    showAlert("error", `เกิดข้อผิดพลาด: ${err.message}`);
   } finally {
     loading.value = false;
   }
+};
+
+const showAlert = (status, message) => {
+  alertStatus.value = status;
+  alertMessage.value = message;
+  isAlertOpen.value = true;
+
+  // Automatically close the alert after 3 seconds
+  setTimeout(closeAlert, 3000);
+};
+
+const closeAlert = () => {
+  isAlertOpen.value = false;
 };
 </script>
