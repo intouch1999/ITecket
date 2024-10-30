@@ -26,12 +26,12 @@
         <table>
           <thead>
             <tr>
-              <th>ลําดับ</th>
+              <th>ID</th>
               <th>ประเภท</th>
               <th>เรื่อง</th>
               <th>สถานะ</th>
-              <th>วันที่</th>
-              <th></th>
+              <th>วันที่แจ้ง</th>
+              <th>action</th>
             </tr>
           </thead>
           <tbody>
@@ -42,25 +42,55 @@
               <td>{{ task.status }}</td>
               <td>{{ task.formatedTask }}</td>
               <td>
-                <NuxtLink :to="`/tasks/${task.id}`">รายละเอียด</NuxtLink>
+                <NuxtLink class="btn btn-primary btn-sm" :to="`/tasks/${task.id}`">รายละเอียด</NuxtLink>
+                <button
+                  class="ml-2 btn btn-success btn-sm"
+                  @click="openConfirmModal(task.id, 'Success')"
+                >
+                  ยืนยัน
+                </button>
+                <button
+                  class="ml-2 btn btn-error btn-sm"
+                  @click="openConfirmModal(task.id, 'Cancel')"
+                >
+                  ยกเลิก
+                </button>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
+    <div v-if="showModal" class="fixed bottom-0 left-0 right-0 w-full flex flex-col bg-secondary text-primary-content p-4">
+      <div class="text-center my-2">
+        ต้องการดำเนินการ {{ actionType }} สำหรับ Task ID: {{ selectedTaskId }} ใช่หรือไม่
+      </div>
+      <div class="flex justify-evenly">
+        <button class="btn btn-sm" @click="handleConfirm">
+          ยืนยัน
+        </button>
+        <button class="btn btn-sm" @click="clearAction">
+          ยกเลิก
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
+
 const supabase = useSupabase();
 
 const table = ref([]);
+const showModal = ref(false);
+let selectedTaskId = ref(null);
+let actionType = ref('');
 
 const listTasks = async () => {
   const { data, error } = await supabase
     .from("tasks_it")
     .select("*")
+    .order("updated_at", { ascending: false });
 
   if (error) throw new Error(error.message);
   table.value = data;
@@ -70,10 +100,9 @@ const listTasks = async () => {
 const FormatTask = computed(() => {
   return table.value?.map((item) => ({
     ...item,
-    formatedTask: formatDate(item.updated_at),
+    formatedTask: formatDate(item.created_at),
   }));
 });
-console.log(FormatTask)
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -84,6 +113,37 @@ const formatDate = (dateString) => {
     hour: "2-digit",
     minute: "2-digit",
   });
+};
+
+const openConfirmModal = (taskId, type) => {
+  selectedTaskId.value = taskId;
+  actionType.value = type;
+  showModal.value = true;
+};
+
+const handleConfirm = async () => {
+  if (selectedTaskId.value) {
+    const newStatus = actionType.value === 'Success' ? 'Success' : 'Cancel';
+    try {
+      const { data, error } = await supabase
+        .from("tasks_it")
+        .update({ status: newStatus })
+        .eq("id", selectedTaskId.value);
+      
+      if (error) throw new Error(error.message);
+      await listTasks();
+    } catch (err) {
+      console.error("Error updating tasks:", err);
+    } finally {
+      clearAction();
+    }
+  }
+};
+
+const clearAction = () => {
+  showModal.value = false;
+  selectedTaskId.value = null;
+  actionType.value = '';
 };
 
 onMounted(() => {
