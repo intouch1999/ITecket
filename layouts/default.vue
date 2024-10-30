@@ -16,7 +16,7 @@
             </li>
           </ul>
         </div>
-        <NuxtLink :to="'/'" class="btn btn-ghost text-xl">daisyUI</NuxtLink>
+        <NuxtLink :to="'/'" class="btn btn-ghost text-xl">ITicket</NuxtLink>
       </div>
       <div class="navbar-center hidden lg:flex">
         <ul v-for="nav_path in navPaths" :key="nav_path.path">
