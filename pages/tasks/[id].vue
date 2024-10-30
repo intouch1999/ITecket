@@ -1,7 +1,11 @@
 <template>
   <div class="bg-red-200">
-    <div class="container mx-auto w-full p-4 md:w-4/5 min-h-screen h-auto overflow-auto">
-      <div class="w-full p-4 card bg-base-100 rounded-2xl border-2 border-red-200 shadow-xl h-full">
+    <div
+      class="container mx-auto w-full p-4 md:w-4/5 min-h-screen h-auto overflow-auto"
+    >
+      <div
+        class="w-full p-4 card bg-base-100 rounded-2xl border-2 border-red-200 shadow-xl h-full"
+      >
         <h1 class="text-4xl text-center text-red-300 mb-4">รายละเอียด</h1>
         <div class="flex flex-row justify-center mb-4">
           <ul class="steps">
@@ -9,16 +13,20 @@
               v-if="GetTasks[0].status !== 'Cancel'"
               v-for="taskStatus in sliced"
               :key="taskStatus.value"
-              :class="{ 'step step-primary': taskStatus.value === GetTasks[0].status }"
+              :class="{
+                'step step-primary': taskStatus.value === GetTasks[0].status,
+              }"
               class="step"
             >
               {{ taskStatus.label }}
             </li>
             <li
               v-else
-              v-for="(taskStatus , index) in taskStatus"
+              v-for="(taskStatus, index) in taskStatus"
               :key="index"
-              :class="{ 'step step-primary': taskStatus.value === GetTasks[0].status }"
+              :class="{
+                'step step-primary': taskStatus.value === GetTasks[0].status,
+              }"
               class="step"
             >
               {{ taskStatus.label }}
@@ -51,13 +59,21 @@
             </div>
           </div>
         </div>
-        <div class="card p-4 bg-gray-200">
-            <div class="flex flex-col md:flex-row justify-center items-center">
-              <div v-if="images && images.length > 0" v-for="image in images" :key="image">
-                <img :src="image.file_path"   alt="Image" class="mb-4 md:mx-4 rounded-lg" style="width: 250px; height: 250px;" />
-              </div>
+        <div v-if="images && images.length > 0" class="card p-4 bg-gray-200">
+          <div class="flex flex-col md:flex-row justify-center items-center">
+            <div v-for="image in images" :key="image" class="hover:cursor-pointer hover:scale-105 hover:opacity-75 transition-transform duration-300 " @click="openModal(image.file_path)">
+              <img
+                :src="image.file_path"
+                alt="Image"
+                class="mb-4 md:mx-4 rounded-lg"
+                style="width: 250px; height: 200px"
+              />
             </div>
           </div>
+        </div>
+
+        <Imagemodal :imgSrc="selectedImg" :isOpen="isModalOpen" @close="closeModal" />
+
       </div>
     </div>
   </div>
@@ -72,12 +88,17 @@ const taskStatus = [
   { label: "ยกเลิก", value: "Cancel" },
 ];
 
-const sliced = ref([])
+const sliced = ref([]);
+const isModalOpen = ref(false);
+const selectedImg = ref('');
 
 const listTasks = () => {
   sliced.value = taskStatus.slice(0, 2);
-}
-listTasks()
+};
+
+onMounted(() => {
+  listTasks();
+});
 
 const { data: GetTasks } = await useAsyncData(async () => {
   const { data, error } = await supabase
@@ -88,15 +109,22 @@ const { data: GetTasks } = await useAsyncData(async () => {
   return data;
 });
 
-const { data:images  } = await useAsyncData(async () => {
+const { data: images } = await useAsyncData(async () => {
   const { data, error } = await supabase
     .from("task_files")
     .select("*")
     .eq("task_id", id);
   if (error) throw new Error(error.message);
-  console.log(data)
+  console.log(data);
   return data;
 });
 
+const openModal = (img) => {
+  selectedImg.value = img;
+  isModalOpen.value = true;
+};
 
+const closeModal = () => {
+  isModalOpen.value = false;
+};
 </script>
