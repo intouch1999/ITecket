@@ -48,11 +48,11 @@
               :disabled="task.status !== 'Pending'"
             />
           </div>
-          <div class="flex flex-col flex-grow" :class="{ 'line-through': task.status !== 'Pending'}">
+          <div class="flex flex-col flex-grow" :class="{ 'line-through': task.status == 'Cancel'}">
             <div class="w-full mt-2">
               <span>{{ task.name }}</span>
             </div>
-            <div class="w-full mt-2" :class="{ 'line-through': task.status !== 'Pending'}">
+            <div class="w-full mt-2" :class="{ 'line-through': task.status == 'Cancel'}">
               {{ task.limitText }}
             </div>
           </div>
