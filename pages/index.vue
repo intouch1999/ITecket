@@ -23,8 +23,8 @@
         {{ error }}
       </div>
 
-      <div v-else-if="loading" class=" w-full text-center mt-8">
-        <span class="loading loading-infinity loading-lg"></span>
+      <div v-else-if="loading" class="col-span-3 w-full text-center mt-8">
+        <span class="loading loading-ring loading-lg text-secondary"></span>
       </div>
 
       <div
@@ -120,6 +120,7 @@ const selectedTasks = ref([]);
 const fetchTasks = async () => {
   try {
     loading.value = true;
+    // await new Promise(resolve =>setTimeout(resolve, 1000))
     error.value = null;
     const { data, error: supabaseError } = await supabase
       .from("tasks_it")
@@ -146,6 +147,10 @@ const FormatTask = computed(() => {
     limitText: limitText(item.comm, 40),
     formatedTask: formatDate(item.updated_at),
   }));
+});
+
+watch (currentTab, () => {
+  selectedTasks.value = [];
 });
 
 const filteredTasks = computed(() => {
