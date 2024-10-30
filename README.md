@@ -1,75 +1,21 @@
-# Nuxt 3 Minimal Starter
+# IT Support Request System Showcase
+DEMO Link: [page](https://open-chat-gamma-ten.vercel.app/)
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
 
-## Setup
+> This is a showcase of an IT Support Request System designed to streamline IT support requests, allow users to track their requests, and enable admin-level control over requests.
 
-Make sure to install the dependencies:
+## Overview
 
-```bash
-# npm
-npm install
+This IT Support Request System provides an interface for users to submit, cancel, and track the status of their IT support requests. Admins have full control over managing and updating the status of all support requests.
 
-# pnpm
-pnpm install
+## Features
 
-# yarn
-yarn install
+- **Request Form**: Users can submit requests by filling out a form with relevant details, such as the type of issue, a description
+- **Track Status**: Users can monitor the status of their requests, e.g., “In Progress” or “Completed.”
+- **Request Management**: Admins have access to view, update, and manage all incoming requests.
+- **Status Control**: Admins can update the status of requests, send responses, and close requests when completed.
 
-# bun
-bun install
-```
+## Technologies Used
 
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm run dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm run build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm run preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+- **Frontend**: Nuxt.js Framework , Tailwind , DaisyUI
+- **DataBase**: Supabase
