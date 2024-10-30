@@ -9,30 +9,28 @@
         <h1 class="text-4xl text-center text-red-300 mb-4">รายละเอียด</h1>
         <div class="flex flex-row justify-center mb-4">
           <ul class="steps">
-            <li
-              v-if="GetTasks[0].status !== 'Cancel'"
-              v-for="taskStatus in sliced"
-              :key="taskStatus.value"
-              :class="{
-                'step step-primary': taskStatus.value === GetTasks[0].status || taskStatus.value === 'Pending',
-              }"
-              class="step"
-            >
-              {{ taskStatus.label }}
-            </li>
-            <li
-              v-else
-              v-for="(taskStatus, index) in taskStatus"
-              :key="index"
-              :class="{
-                'step step-primary': taskStatus.value === GetTasks[0].status,
-              }"
-              class="step"
-            >
-              {{ taskStatus.label }}
-            </li>
+            <template v-if="GetTasks[0].status !== 'Cancel'">
+              <li class="step" :class="{ 'step-primary': true }">ดำเนินการ</li>
+              <li
+                class="step"
+                :class="{ 'step-primary': GetTasks[0].status === 'Success' }"
+              >
+                เสร็จสิ้น
+              </li>
+            </template>
+
+            <template v-else>
+              <li class="step" :class="{ 'step-primary': true }">ดำเนินการ</li>
+              <li
+                class="step"
+                :class="{ 'step-primary': GetTasks[0].status === 'Cancel' }"
+              >
+                ยกเลิก
+              </li>
+            </template>
           </ul>
         </div>
+
         <div v-for="task in GetTasks" :key="task.id">
           <div class="card p-4 bg-gray-200 mb-4">
             <div class="flex flex-row items-center">
@@ -61,7 +59,12 @@
         </div>
         <div v-if="images && images.length > 0" class="card p-4 bg-gray-200">
           <div class="flex flex-col md:flex-row justify-center items-center">
-            <div v-for="image in images" :key="image" class="hover:cursor-pointer hover:scale-105 hover:opacity-75 transition-transform duration-300 " @click="openModal(image.file_path)">
+            <div
+              v-for="image in images"
+              :key="image"
+              class="hover:cursor-pointer hover:scale-105 hover:opacity-75 transition-transform duration-300"
+              @click="openModal(image.file_path)"
+            >
               <img
                 :src="image.file_path"
                 alt="Image"
@@ -72,33 +75,21 @@
           </div>
         </div>
 
-        <Imagemodal :imgSrc="selectedImg" :isOpen="isModalOpen" @close="closeModal" />
-
+        <Imagemodal
+          :imgSrc="selectedImg"
+          :isOpen="isModalOpen"
+          @close="closeModal"
+        />
       </div>
     </div>
   </div>
 </template>
+
 <script setup>
 const supabase = useSupabase();
 const { id } = useRoute().params;
-
-const taskStatus = [
-  { label: "ดำเนินการ", value: "Pending" },
-  { label: "เสร็จสิ้น", value: "Success" },
-  { label: "ยกเลิก", value: "Cancel" },
-];
-
-const sliced = ref([]);
 const isModalOpen = ref(false);
-const selectedImg = ref('');
-
-const listTasks = () => {
-  sliced.value = taskStatus.slice(0, 2);
-};
-
-onMounted(() => {
-  listTasks();
-});
+const selectedImg = ref("");
 
 const { data: GetTasks } = await useAsyncData(async () => {
   const { data, error } = await supabase
