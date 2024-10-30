@@ -83,8 +83,8 @@
     </div>
   </div>
 </div>
+<div     v-if="selectedTasks.length > 0">
   <div
-    v-if="selectedTasks.length > 0"
     class="fixed bottom-0 left-0 right-0 w-full flex flex-col bg-secondary text-primary-content p-4"
   >
     <div class="text-center my-2">
@@ -99,6 +99,7 @@
       </button>
     </div>
   </div>
+</div>
 </template>
 
 <script setup>
