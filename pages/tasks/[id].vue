@@ -39,7 +39,7 @@
               <span v-if="!task.isEditingName" class="w-full md:ml-4 text-primary text-base">{{ task.name }}</span>
               <input v-else v-model="task.name" class="md:ml-4 justify-start text-base border border-gray-300 rounded p-1" />
               </div>
-              <button @click="editTaskField(task, 'name')" class="btn btn-sm btn-primary md:mr-4 mt-2 md:mt-0 text-sm">
+              <button :disabled="GetTasks[0].status !== 'Pending'" @click="editTaskField(task, 'name')" class="btn btn-sm btn-primary md:mr-4 mt-2 md:mt-0 text-sm">
                 {{ task.isEditingName ? 'Save' : 'Edit' }}
               </button>
             </div>
@@ -52,7 +52,7 @@
               <span v-if="!task.isEditingType" class="w-full md:ml-4 text-primary text-base">{{ task.type }}</span>
               <input v-else v-model="task.type" class="md:ml-4 justify-start text-base border border-gray-300 rounded p-1" />
             </div>
-              <button @click="editTaskField(task, 'type')" class="btn btn-sm btn-primary md:mr-4 mt-2 md:mt-0 text-sm ">
+              <button :disabled="GetTasks[0].status !== 'Pending'" @click="editTaskField(task, 'type')" class="btn btn-sm btn-primary md:mr-4 mt-2 md:mt-0 text-sm ">
                 {{ task.isEditingType ? 'Save' : 'Edit' }}
               </button>
             </div>
@@ -63,7 +63,7 @@
               <span class="text-lg">รายละเอียดงาน:</span>
               <p v-if="!task.isEditingComm" class="text-primary text-base text-start">{{ task.comm }}</p>
               <textarea v-else v-model="task.comm" class="w-full text-base border border-gray-300 rounded p-2"></textarea>
-              <button @click="editTaskField(task, 'comm')" class="w-1/2 self-center  btn btn-sm btn-primary md:mr-4 mt-2 md:mt-0 text-sm ">
+              <button :disabled="GetTasks[0].status !== 'Pending'" @click="editTaskField(task, 'comm')" class="w-1/2 self-center  btn btn-sm btn-primary md:mr-4 mt-2 md:mt-0 text-sm ">
                 {{ task.isEditingComm ? 'Save' : 'Edit' }}
               </button>
             </div>
