@@ -1,11 +1,9 @@
-// server/api/upload.post.js
 import formidable from 'formidable';
-import fs from 'fs/promises'; // Use promises API to read files
+import fs from 'fs/promises';
 import { createClient } from '@supabase/supabase-js';
 
 let supabaseClient = null;
 
-// Supabase composable function
 const useSupabase = () => {
     const config = useRuntimeConfig();
 
@@ -19,14 +17,36 @@ const useSupabase = () => {
     return supabaseClient;
 };
 
+// Function to generate filename with timestamp
+const generateITFilename = (originalFilename) => {
+    const date = new Date();
+    
+    // สร้าง timestamp ในรูปแบบ YYYYMMDD_HHmmss
+    const timestamp = date.getFullYear().toString() +
+        (date.getMonth() + 1).toString().padStart(2, '0') +
+        date.getDate().toString().padStart(2, '0') + '_' +
+        date.getHours().toString().padStart(2, '0') +
+        date.getMinutes().toString().padStart(2, '0') +
+        date.getSeconds().toString().padStart(2, '0');
+    
+    // เพิ่ม milliseconds เพื่อป้องกันการซ้ำในกรณีที่มีการอัพโหลดพร้อมกัน
+    const ms = date.getMilliseconds().toString().padStart(3, '0');
+    
+    // ดึงนามสกุลไฟล์
+    const extension = originalFilename.split('.').pop();
+    
+    // รวมเป็นชื่อไฟล์: IT_YYYYMMDD_HHmmss_SSS.ext
+    return `IT_${timestamp}_${ms}.${extension}`;
+};
+
 export default defineEventHandler(async (event) => {
-    const supabase = useSupabase(); // Initialize Supabase client
+    const supabase = useSupabase();
 
     const form = formidable({
         multiples: true,
         maxFileSize: 10 * 1024 * 1024, // 10MB limit
         filename: (name, ext, part) => {
-            return `${Date.now()}-${part.originalFilename}`;
+            return generateITFilename(part.originalFilename);
         }
     });
 
@@ -41,14 +61,12 @@ export default defineEventHandler(async (event) => {
         const fileArray = files.file ? (Array.isArray(files.file) ? files.file : [files.file]) : [];
 
         const uploadResults = await Promise.all(fileArray.map(async (file) => {
-            // Read the file as a buffer
             const fileBuffer = await fs.readFile(file.filepath);
 
-            // Upload to Supabase
             const { data, error } = await supabase.storage.from('upload').upload(`uploads/${file.newFilename}`, fileBuffer, {
                 cacheControl: '3600',
                 upsert: false,
-                contentType: file.mimetype // Ensure correct MIME type
+                contentType: file.mimetype
             });
 
             if (error) throw error;
