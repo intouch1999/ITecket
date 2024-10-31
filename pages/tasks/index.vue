@@ -330,7 +330,12 @@ const submitForm = async () => {
     });
     form.files = [];
 
-    showAlert("success", "บันทึกข้อมูลสำเร็จ");
+    showAlert("success", "บันทึกข้อมูลสำเร็จ ระบบกำลังกลับไปหน้าหลัก");
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    await navigateTo('/', {
+      replace: true, // ใช้ replace เพื่อไม่ให้ย้อนกลับมาที่หน้าฟอร์มได้
+    });
   } catch (error) {
     console.error('Error submitting form:', error);
     showAlert("error", `เกิดข้อผิดพลาดในการบันทึกข้อมูล: ${error.message}`);
