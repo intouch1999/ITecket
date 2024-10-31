@@ -8,7 +8,7 @@
         </div>
       </div>
       <div
-        class="w-full max-w-xs sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-5xl card bg-secondary shadow-lg p-4 mx-auto mb-4 border-b-2 border-gray-200"
+        class="w-full sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-5xl card bg-secondary shadow-lg p-4 mx-auto mb-4 border-b-2 border-gray-200"
       >
         <div class="flex">
           <h1 class="text-2xl mx-auto">แจ้งปัญหาการใช้งาน</h1>
