@@ -1,6 +1,14 @@
 <template>
   <div class="bg-red-200">
     <div class="container mx-auto w-full md:w-4/5 p-4 min-h-[75vh] h-auto">
+      <!-- Loading Overlay สำหรับทั้งหน้า -->
+      <div v-if="pageLoading" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="text-white text-center">
+          <Loading />
+          <p class="mt-2">กำลังโหลดข้อมูล...</p>
+        </div>
+      </div>
+
       <div class="">
       <div class="container mx-auto w-full md:w-4/5 mb-4">
         <div class="bg-base-200 collapse">
@@ -14,23 +22,25 @@
             class="collapse-content bg-primary text-primary-content peer-checked:bg-accent peer-checked:text-accent-content"
           >
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
-              <!-- Search Input -->
-              <div class="form-control">
+              <div class="form-control relative">
                 <input
                   v-model="searchQuery"
                   type="text"
                   placeholder="ค้นหาด้วย ID หรือ ชื่อ..."
                   class="input input-bordered w-full"
-                  @input="updateFilters"
+                  @input="debounceSearch"
                 />
+
+                <div v-if="searchLoading" class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                  <Loading class="w-6 h-6" />
+                </div>
               </div>
               
-              <!-- Status Filter -->
               <div class="form-control">
                 <select 
                   v-model="selectedStatus"
                   class="select select-bordered w-full"
-                  @change="updateFilters"
+                  @change="handleStatusChange"
                 >
                   <option value="">สถานะทั้งหมด</option>
                   <option value="Pending">Pending</option>
@@ -54,8 +64,7 @@
         </div>
       </div>
 
-      <!-- Table Section -->
-      <div class="card p-4 w-full md:w-full bg-accent overflow-x-auto">
+      <div class="card p-4 w-full md:w-full bg-accent overflow-x-auto overflow-y-hidden">
         <table class="table w-full text-center">
           <thead>
             <tr>
@@ -111,15 +120,12 @@
           </tbody>
         </table>
 
-        <!-- No Results Message -->
-        <div v-if="filteredTasks.length === 0" class="text-center py-4">
-          <p class="text-gray-500">ไม่พบข้อมูลที่ค้นหา</p>
+        <div v-if="!pageLoading && !searchLoading && filteredTasks.length === 0" class="text-center py-4">
+          <p class="text-black">ไม่พบข้อมูลที่ค้นหา</p>
         </div>
       </div>
     </div>
 
-
-    <!-- Confirmation Modal -->
     <div v-if="showModal" class="fixed bottom-0 left-0 right-0 w-full flex flex-col bg-secondary text-primary-content p-4">
       <div class="text-center my-2">
         ต้องการดำเนินการ {{ actionType }} สำหรับ Task ID: {{ selectedTaskId }} ใช่หรือไม่
@@ -150,21 +156,43 @@ const actionType = ref('');
 const searchQuery = ref('');
 const selectedStatus = ref('');
 
+// Loading states
+const pageLoading = ref(true);   // สำหรับโหลดครั้งแรก
+const searchLoading = ref(false); // สำหรับการค้นหา
+
+// Debounce function
+const debounce = (fn, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn(...args), delay);
+  };
+};
+
 // Initialize filters from URL
 onMounted(async () => {
-  // Get initial values from URL
-  searchQuery.value = route.query.search || '';
-  selectedStatus.value = route.query.status || '';
-  
-  await listTasks();
+  pageLoading.value = true;
+  try {
+
+    searchQuery.value = route.query.search || '';
+    selectedStatus.value = route.query.status || '';
+    
+    await listTasks();
+  } catch (error) {
+    console.error("Error during initialization:", error);
+  } finally {
+    pageLoading.value = false;
+  }
 });
 
 // Watch for route changes
 watch(
   () => route.query,
-  (newQuery) => {
-    searchQuery.value = newQuery.search || '';
-    selectedStatus.value = newQuery.status || '';
+  async (newQuery) => {
+    if (!searchLoading.value) { // ป้องกันการ trigger ซ้ำ
+      searchQuery.value = newQuery.search || '';
+      selectedStatus.value = newQuery.status || '';
+    }
   }
 );
 
@@ -183,27 +211,52 @@ const listTasks = async () => {
   }
 };
 
-const updateFilters = () => {
-  // Update URL with current filters
+// Debounced search function
+const debounceSearch = debounce(async () => {
+  searchLoading.value = true;
+  try {
+    await updateFilters();
+    await listTasks();
+  } catch (error) {
+    console.error("Error during search:", error);
+  } finally {
+    searchLoading.value = false;
+  }
+}, 500);
+
+// Handle status change
+const handleStatusChange = async () => {
+  searchLoading.value = true;
+  try {
+    await updateFilters();
+    await listTasks();
+  } finally {
+    searchLoading.value = false;
+  }
+};
+
+const updateFilters = async () => {
   const query = {};
   if (searchQuery.value) query.search = searchQuery.value;
   if (selectedStatus.value) query.status = selectedStatus.value;
-  
-  // Update URL without refreshing the page
-  router.push({ query });
+  await router.push({ query });
 };
 
-const clearFilters = () => {
-  searchQuery.value = '';
-  selectedStatus.value = '';
-  router.push({ query: {} });
+const clearFilters = async () => {
+  searchLoading.value = true;
+  try {
+    searchQuery.value = '';
+    selectedStatus.value = '';
+    await router.push({ query: {} });
+    await listTasks();
+  } finally {
+    searchLoading.value = false;
+  }
 };
 
-// Computed
 const filteredTasks = computed(() => {
   let filtered = table.value;
 
-  // Apply search filter
   if (searchQuery.value) {
     const search = searchQuery.value.toLowerCase();
     filtered = filtered.filter(task => 
@@ -212,14 +265,12 @@ const filteredTasks = computed(() => {
     );
   }
 
-  // Apply status filter
   if (selectedStatus.value) {
     filtered = filtered.filter(task => 
       task.status === selectedStatus.value
     );
   }
 
-  // Format dates
   return filtered.map((item) => ({
     ...item,
     formatedTask: formatDate(item.created_at),
@@ -245,8 +296,9 @@ const openConfirmModal = (taskId, type) => {
 
 const handleConfirm = async () => {
   if (selectedTaskId.value) {
-    const newStatus = actionType.value === 'Success' ? 'Success' : 'Cancel';
+    searchLoading.value = true;
     try {
+      const newStatus = actionType.value === 'Success' ? 'Success' : 'Cancel';
       const { error } = await supabase
         .from("tasks_it")
         .update({ 
@@ -261,6 +313,7 @@ const handleConfirm = async () => {
       console.error("Error updating tasks:", err);
     } finally {
       clearAction();
+      searchLoading.value = false;
     }
   }
 };
