@@ -63,7 +63,7 @@
         </div>
       </div>
 
-      <div class="card p-4 w-full md:w-full bg-accent overflow-x-auto overflow-y-hidden">
+      <div class="card p-4 w-full md:w-full bg-accent overflow-x-auto">
         <table class="table w-full text-center">
           <thead>
             <tr>
@@ -91,7 +91,6 @@
                   'badge badge-success': task.status === 'Success',
                   'badge badge-error': task.status === 'Cancel',
                   'badge badge-warning': task.status === 'Pending',
-                  'badge badge-primary': task.status === 'In Progress'
                 }">
                   {{ task.status }}
                 </span>
