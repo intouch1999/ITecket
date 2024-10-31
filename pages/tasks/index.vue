@@ -335,7 +335,7 @@ const submitForm = async () => {
 
       if (filesError) throw filesError;
     }
-
+    ModalState.value = false;
     // Reset form after successful submission
     form.title = "";
     form.detail = "";
@@ -355,8 +355,6 @@ const submitForm = async () => {
   } catch (error) {
     console.error('Error submitting form:', error);
     showAlert("error", `เกิดข้อผิดพลาดในการบันทึกข้อมูล: ${error.message}`);
-  } finally {
-    ModalState.value = false;
   }
 };
 
