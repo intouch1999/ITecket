@@ -3,6 +3,12 @@
     <div
       class="container mx-auto w-full p-4 md:w-4/5 min-h-screen h-auto overflow-auto"
     >
+    <div v-if="pageLoading" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="text-white text-center">
+          <Loading />
+          <p class="mt-2">กำลังโหลดข้อมูล...</p>
+        </div>
+      </div>
       <div
         class="w-full p-4 card bg-base-100 rounded-2xl border-2 border-red-200 shadow-xl h-full"
       >
@@ -90,13 +96,16 @@ const supabase = useSupabase();
 const { id } = useRoute().params;
 const isModalOpen = ref(false);
 const selectedImg = ref("");
+const pageLoading = ref(false);
 
 const { data: GetTasks } = await useAsyncData(async () => {
+  pageLoading.value = true;
   const { data, error } = await supabase
     .from("tasks_it")
     .select("id, name, type, comm, status, updated_at")
     .eq("id", id);
   if (error) throw new Error(error.message);
+  pageLoading.value = false;
   return data;
 });
 

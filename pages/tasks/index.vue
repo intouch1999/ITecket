@@ -1,6 +1,12 @@
 <template>
   <div class="bg-red-200 min-h-screen h-auto">
     <div class="container mx-auto w-full p-4">
+      <div v-if="pageLoading" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="text-white text-center">
+          <Loading />
+          <p class="mt-2">กำลังโหลดข้อมูล...</p>
+        </div>
+      </div>
       <div
         class="w-full max-w-xs sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-5xl card bg-secondary shadow-lg p-4 mx-auto mb-4 border-b-2 border-gray-200"
       >
@@ -46,7 +52,7 @@
                 <option>Other</option>
               </select>
             </label>
-            <label for="file" class="form-control w-full sm:w-3/4 mb-2">
+            <label for="file" class="form-control w-full sm:w-3/4 mb-2 items-center">
               <div class="btn btn-primary w-3/4 sm:w-1/4">
                 Upload File
             </div>
@@ -146,12 +152,12 @@
 
 <script setup>
 const supabase = useSupabase();
-
 const empoyee = ref([]);
-
 const requseLabel = ref("จำเป็น*");
+const pageLoading = ref(false);
 
 const person = async () => {
+  try{
   const { data, error } = await supabase
     .from("users")
     .select("name")
@@ -159,10 +165,20 @@ const person = async () => {
   if (error) throw new Error(error.message);
   empoyee.value = data;
   return data;
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+  }
 };
 
-onMounted(() => {
-  person();
+onMounted(async () => {
+  pageLoading.value = true;
+  try{
+    await person();
+  }
+  catch (error) {
+    console.error("Error fetching tasks:", error);
+  }
+  pageLoading.value = false;
 });
 
 const form = reactive({

@@ -27,7 +27,7 @@
                   v-model="searchQuery"
                   type="text"
                   placeholder="ค้นหาด้วย ID หรือ ชื่อ..."
-                  class="input input-bordered w-full"
+                  class="input input-bordered w-full input-sm"
                   @input="debounceSearch"
                 />
 
@@ -39,21 +39,20 @@
               <div class="form-control">
                 <select 
                   v-model="selectedStatus"
-                  class="select select-bordered w-full"
+                  class="select select-bordered select-sm"
                   @change="handleStatusChange"
                 >
                   <option value="">สถานะทั้งหมด</option>
                   <option value="Pending">Pending</option>
                   <option value="Success">Success</option>
                   <option value="Cancel">Cancel</option>
-                  <option value="In Progress">In Progress</option>
                 </select>
               </div>
 
               <!-- Clear Filters -->
               <div class="form-control">
                 <button 
-                  class="btn btn-secondary"
+                  class="btn btn-secondary btn-sm"
                   @click="clearFilters"
                 >
                   ล้างการค้นหา
@@ -157,7 +156,7 @@ const searchQuery = ref('');
 const selectedStatus = ref('');
 
 // Loading states
-const pageLoading = ref(true);   // สำหรับโหลดครั้งแรก
+const pageLoading = ref(false);   // สำหรับโหลดครั้งแรก
 const searchLoading = ref(false); // สำหรับการค้นหา
 
 // Debounce function
@@ -256,14 +255,23 @@ const clearFilters = async () => {
 
 const filteredTasks = computed(() => {
   let filtered = table.value;
-
+  // search first word in name
   if (searchQuery.value) {
     const search = searchQuery.value.toLowerCase();
     filtered = filtered.filter(task => 
-      task.id.toString().includes(search) ||
-      task.name.toLowerCase().includes(search)
+      task.id.toString().startsWith(search) ||
+      task.name.toLowerCase().startsWith(search)
     );
   }
+
+  // search any word in name
+  // if (searchQuery.value) {
+  //   const search = searchQuery.value.toLowerCase();
+  //   filtered = filtered.filter(task => 
+  //     task.id.toString().includes(search) ||
+  //     task.name.toLowerCase().includes(search)
+  //   );
+  // }
 
   if (selectedStatus.value) {
     filtered = filtered.filter(task => 
@@ -273,7 +281,7 @@ const filteredTasks = computed(() => {
 
   return filtered.map((item) => ({
     ...item,
-    formatedTask: formatDate(item.created_at),
+    formatedTask: formatDate(item.updated_at),
   }));
 });
 

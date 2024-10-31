@@ -1,6 +1,12 @@
 <template>
   <div class="bg-red-200">
     <div class="relative left-0 -bottom-4 z-10 mx-auto w-full md:w-4/5 flex flex-row">
+      <div v-if="pageLoading" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="text-white text-center">
+          <Loading />
+          <p class="mt-2">กำลังโหลดข้อมูล...</p>
+        </div>
+      </div>
       <div role="tablist" class="tabs tabs-boxed border-2 border-primary shadow">
         <a
           v-for="tab in tabs"
@@ -118,6 +124,7 @@ const tasks = ref([]);
 const isAlertOpen = ref(false);
 const alertStatus = ref("success");
 const alertMessage = ref("");
+const pageLoading = ref(false);
 
 const tabs = [
   { label: "ดำเนินการ", value: "Pending" },
@@ -149,8 +156,14 @@ const fetchTasks = async () => {
   }
 };
 
-onMounted(() => {
-  fetchTasks();
+onMounted(async () => {
+  pageLoading.value = true;
+  try{
+    await fetchTasks();
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+  }
+  pageLoading.value = false;
 });
 
 const FormatTask = computed(() => {
