@@ -263,23 +263,26 @@ const areRequiredFieldsFilled = () => {
 const submitForm = async () => {
   try {
     // 1. Upload files first
-    let uploadResult = { data: [] }
+    let uploadResult = { data: [] };
     
+    // Check if files are present before uploading
     if (form.files.length > 0) {
-      const formData = new FormData()
-      form.files.forEach((fileObj, index) => {
-        formData.append('file', fileObj.file)
-      })
+      const formData = new FormData();
+      form.files.forEach((fileObj) => {
+        formData.append('file', fileObj.file);
+      });
 
+      // Replace the local API call with your actual API endpoint
       const uploadResponse = await fetch('/api/upload', {
         method: 'POST',
-        body: formData
-      })
+        body: formData,
+      });
       
-      uploadResult = await uploadResponse.json()
+      uploadResult = await uploadResponse.json();
       
+      // Check for errors in the upload response
       if (uploadResult.status === 'error') {
-        throw new Error(uploadResult.message)
+        throw new Error(uploadResult.message);
       }
     }
 
@@ -293,11 +296,11 @@ const submitForm = async () => {
         role: form.recipient,
         status: "Pending",
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
-      .select()
+      .select();
 
-    if (taskError) throw taskError
+    if (taskError) throw taskError;
 
     // 3. Save file records only if files were uploaded
     if (uploadResult.data.length > 0) {
@@ -307,34 +310,35 @@ const submitForm = async () => {
         original_name: file.originalName,
         file_type: file.fileType,
         file_path: file.filePath,
-        file_size: file.fileSize
-      }))
+        file_size: file.fileSize,
+      }));
 
       const { error: filesError } = await supabase
         .from("task_files")
-        .insert(fileRecords)
+        .insert(fileRecords);
 
-      if (filesError) throw filesError
+      if (filesError) throw filesError;
     }
 
-    // Reset form
-    form.title = ""
-    form.detail = ""
-    form.category = ""
-    form.recipient = ""
+    // Reset form after successful submission
+    form.title = "";
+    form.detail = "";
+    form.category = "";
+    form.recipient = "";
     form.files.forEach((file) => {
-      if (file.preview) URL.revokeObjectURL(file.preview)
-    })
-    form.files = []
+      if (file.preview) URL.revokeObjectURL(file.preview);
+    });
+    form.files = [];
 
-    showAlert("success", "บันทึกข้อมูลสำเร็จ")
+    showAlert("success", "บันทึกข้อมูลสำเร็จ");
   } catch (error) {
-    console.error('Error submitting form:', error)
-    showAlert("error", `เกิดข้อผิดพลาดในการบันทึกข้อมูล: ${error.message}`)
+    console.error('Error submitting form:', error);
+    showAlert("error", `เกิดข้อผิดพลาดในการบันทึกข้อมูล: ${error.message}`);
   } finally {
-    ModalState.value = false
+    ModalState.value = false;
   }
-}
+};
+
 
 const showAlert = (status, message) => {
   alertStatus.value = status;

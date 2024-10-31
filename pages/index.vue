@@ -53,7 +53,7 @@
               <span>{{ task.name }}</span>
             </div>
             <div class="w-full mt-2" :class="{ 'line-through': task.status == 'Cancel'}">
-              {{ task.limitText }}
+              {{ task.type }}
             </div>
           </div>
           <div class="flex justify-end items-center">
@@ -135,7 +135,8 @@ const fetchTasks = async () => {
     error.value = null;
     const { data, error: supabaseError } = await supabase
       .from("tasks_it")
-      .select("*");
+      .select("id, name, type, comm, status, updated_at")
+      .order("updated_at", { ascending: false });
     
     if (supabaseError) throw new Error(supabaseError.message);
     

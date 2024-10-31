@@ -94,7 +94,7 @@ const selectedImg = ref("");
 const { data: GetTasks } = await useAsyncData(async () => {
   const { data, error } = await supabase
     .from("tasks_it")
-    .select("*")
+    .select("id, name, type, comm, status, updated_at")
     .eq("id", id);
   if (error) throw new Error(error.message);
   return data;

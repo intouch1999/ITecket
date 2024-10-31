@@ -173,7 +173,7 @@ const listTasks = async () => {
   try {
     const { data, error } = await supabase
       .from("tasks_it")
-      .select("*")
+      .select("id, name, type, comm, status, updated_at")
       .order("updated_at", { ascending: false });
 
     if (error) throw error;
