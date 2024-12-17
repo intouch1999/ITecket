@@ -124,7 +124,8 @@ const tasks = ref([]);
 const isAlertOpen = ref(false);
 const alertStatus = ref("success");
 const alertMessage = ref("");
-const pageLoading = ref(false);
+// Global state
+const pageLoading = usePageLoading()
 
 const tabs = [
   { label: "ดำเนินการ", value: "Pending" },
