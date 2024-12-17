@@ -1,0 +1,1 @@
+export const usePageLoading = () => useState('page-loading', () => false)
