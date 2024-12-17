@@ -10,7 +10,7 @@
             </svg>
           </div>
           <ul tabindex="0" class="  menu menu-lg w-52 dropdown-content bg-primary text-white-content rounded-box z-20 mt-3 p-2 shadow">
-            <li v-for="nav_path in navPaths" :key="nav_path.path">
+            <li v-for="nav_path in rolepage" :key="nav_path.path">
               <NuxtLink :to="nav_path.path" :class="{ 'bg-primary ': isActive(nav_path.path) }">{{ nav_path.name }}
               </NuxtLink>
             </li>
@@ -19,7 +19,7 @@
         <NuxtLink :to="'/'" class="btn btn-ghost text-xl">ITicket</NuxtLink>
       </div>
       <div class="navbar-center hidden lg:flex">
-        <ul v-for="nav_path in navPaths" :key="nav_path.path">
+        <ul v-for="nav_path in rolepage" :key="nav_path.path">
           <li>
             <NuxtLink :to="nav_path.path"
               class=" rounded-lg hover:bg-secondary hover:text-white transition-colors duration-300 mx-1 p-2"
@@ -28,6 +28,7 @@
         </ul>
       </div>
       <div class="navbar-end">
+        <button @click="logout" class="mr-2 btn btn-primary">Logout</button>
       </div>
     </div>
     <p class="w-full bg-black"></p>
@@ -45,9 +46,23 @@ const navPaths = [
 ]
 
 const route = useRoute()
+const authCookie = useCookie('user_auth')
+console.log(authCookie.value)
 
 const isActive = (routePath) => {
   return route.path === routePath
 }
 
+const rolepage = computed(() => {
+  if (authCookie.value.role === 1) {
+    return navPaths
+  } else {
+    return navPaths.filter(item => item.name !== 'แอดมิน')
+  } 
+})
+
+const logout = async () => {
+  authCookie.value = null
+  await navigateTo('/login')
+}
 </script>
