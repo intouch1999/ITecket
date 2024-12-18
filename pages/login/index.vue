@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-center items-center h-screen bg-secondary">
+  <div class="flex justify-center items-center h-screen bg-purple-300">
     <div v-if="pageLoading" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
       <div class="text-white text-center">
         <Loading />
@@ -33,11 +33,17 @@
           <button @keyup.enter="login" class="btn btn-primary">เข้าสู่ระบบ</button>
         </div>
       </form>
-      <div v-if="errorLog" class="text-center">
-        <p class="text-red-500 mt-2">{{ errorLog }}</p>
-      </div>
     </div>
   </div>
+  <div class="toast toast-end">
+  <div v-if="status === 'success'" class="alert alert-success border-white">
+    <span>เข้าสู่ระบบสำเร็จ</span>
+  </div>
+  <div v-else-if="status === 'error'" class="alert alert-error border-white">
+    <span>ไอดีผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</span>
+  </div>
+  <div v-else></div>
+</div>
 </template>
 
 <script setup>
@@ -50,7 +56,7 @@ const logIN = ref({
   username: "",
   password: ""
 })
-const errorLog = ref(null)
+const status = ref(null)
 
 
 const login = async () => {
@@ -67,12 +73,8 @@ const login = async () => {
     .eq("password", tolowerCase.password)
     .single()
 
-    if (error || !data) {
-      errorLog.value = "ไม่สามารถเข้าสู่ระบบได้ กรุณาลองใหม่"
-      return
-    }
     const authCookie = useCookie('user_auth', {
-      maxAge: 60 * 60 * 24 * 7, // expires in 7 days
+      maxAge: 60*60*24,
       path: '/' // cookie available across the site
     })
 
@@ -82,15 +84,25 @@ const login = async () => {
       role: data.role
     })
 
-    await navigateTo("/")
+    if (error) {
+      status.value = 'error'
+      throw new Error(error.message)
+    } 
 
+    status.value = 'success'
+    await new Promise(resolve => setTimeout(resolve, 3000))
+    status.value = null
+
+    await navigateTo('/')
   } catch (error) {
-    errorLog.value = "ไม่สามารถเข้าสู่ระบบได้ กรุณาลองใหม่"
+    status.value = 'error'
+    await new Promise(resolve => setTimeout(resolve, 3000))
+    status.value = null
     throw new Error(error.message)
   }
 }
 
 definePageMeta({
-  layout: "null",
+  layout: "blank",
 });
 </script>
