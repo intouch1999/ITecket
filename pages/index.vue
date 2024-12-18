@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white">
+  <div class="bg-white pt-16">
     <div class="relative left-0 -bottom-4 z-10 mx-auto w-full md:w-4/5 flex flex-row">
       <div v-if="pageLoading" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
         <div class="text-white text-center">
@@ -10,7 +10,7 @@
 
     </div>
     <div class="container mx-auto w-full md:w-4/5 mt-4 ">
-      <div role="tablist" class="tabs tabs-lifted w-1/2">
+      <div role="tablist" class="tabs tabs-lifted text-nowrap w-1/2">
         <a
           v-for="tab in tabs"
           :key="tab.value"

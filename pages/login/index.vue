@@ -6,8 +6,8 @@
         <p class="mt-2">กำลังโหลดข้อมูล...</p>
       </div>
     </div>
-    <div v-else class="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
-      <h1 class="text-2xl font-bold mb-4">เข้าสู่ระบบ</h1>
+    <div v-else class="w-full max-w-md m-4 bg-white rounded-lg shadow-lg p-8">
+      <h1 class="text-2xl font-bold mb-4 text-center">เข้าสู่ระบบ</h1>
       <form @submit.prevent="login" class="space-y-4">
         <label
           class="group input input-bordered focus-within:input-info transition-colors duration-300 flex items-center gap-2">
@@ -29,8 +29,8 @@
           </svg>
           <input v-model="logIN.password" type="password" class="grow" name="password" placeholder="Pass: 1234" />
         </label>
-        <div class="flex justify-end">
-          <button @keyup.enter="login" class="btn btn-primary">เข้าสู่ระบบ</button>
+        <div class="flex justify-center">
+          <button @keyup.enter="login" class="btn btn-secondary">เข้าสู่ระบบ</button>
         </div>
       </form>
     </div>

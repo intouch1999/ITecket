@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white min-h-screen h-auto">
+  <div class="bg-white min-h-screen h-auto pt-16">
     <div class="container mx-auto w-full p-4">
       <div v-if="pageLoading" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
         <div class="text-white text-center">

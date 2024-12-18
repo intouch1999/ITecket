@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white">
+  <div class="bg-white pt-16">
     <div class="container mx-auto w-full md:w-4/5 p-4 min-h-[75vh] h-auto">
       <!-- Loading Overlay สำหรับทั้งหน้า -->
       <div v-if="pageLoading" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
