@@ -1,6 +1,6 @@
 <template>
   <div class=" mx-auto border-b-2 border-red-300 shadow-md ">
-    <div class="navbar bg-primary text-primary-content w-full ">
+    <div class="navbar bg-accent text-primary-content w-full ">
       <div class="navbar-start">
         <div class="dropdown">
           <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
@@ -9,9 +9,9 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
             </svg>
           </div>
-          <ul tabindex="0" class="  menu menu-lg w-52 dropdown-content bg-primary text-white-content rounded-box z-20 mt-3 p-2 shadow">
+          <ul tabindex="0" class="  menu menu-lg w-52 dropdown-content bg-accent text-white-content rounded-box z-20 mt-3 p-2 shadow">
             <li v-for="nav_path in rolepage" :key="nav_path.path">
-              <NuxtLink :to="nav_path.path" :class="{ 'bg-primary ': isActive(nav_path.path) }">{{ nav_path.name }}
+              <NuxtLink :to="nav_path.path" :class="{ 'bg-secondary ': isActive(nav_path.path) }">{{ nav_path.name }}
               </NuxtLink>
             </li>
           </ul>
@@ -28,7 +28,7 @@
         </ul>
       </div>
       <div class="navbar-end">
-        <button @click="logout" class="mr-2 btn btn-primary">Logout</button>
+        <button @click="logout" class="mr-2 btn btn-ghost">Logout</button>
       </div>
     </div>
     <p class="w-full bg-black"></p>

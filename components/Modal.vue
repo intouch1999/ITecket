@@ -9,7 +9,7 @@
           <form method="dialog ">
             <div class="flex flex-row justify-end gap-4">
             <slot name="action"></slot>
-            <button @click="closeModal" class="btn btn-primary">ยกเลิก</button>
+            <button @click="closeModal" class="btn btn-ghost">ยกเลิก</button>
             </div>
         </form>
         </div>

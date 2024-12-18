@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-red-200">
+  <div class="bg-white">
     <div class="container mx-auto w-full md:w-4/5 p-4 min-h-[75vh] h-auto">
       <!-- Loading Overlay สำหรับทั้งหน้า -->
       <div v-if="pageLoading" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
@@ -14,7 +14,7 @@
         <div class="bg-base-200 collapse">
           <input type="checkbox" class="peer" />
           <div
-            class="collapse-title bg-primary text-primary-content peer-checked:bg-accent peer-checked:text-accent-content"
+            class="collapse-title bg-purple-300 font-bold peer-checked:bg-accent peer-checked:text-accent-content"
           >
             Filter 
           </div>
@@ -63,7 +63,7 @@
         </div>
       </div>
 
-      <div class="card p-4 w-full md:w-full bg-accent overflow-x-auto">
+      <div class="card p-4 w-full md:w-full bg-purple-300  overflow-x-auto">
         <table class="table w-full text-center">
           <thead>
             <tr>
@@ -77,7 +77,7 @@
           </thead>
           <tbody>
             <tr
-              class="hover:bg-secondary"
+              class="hover:bg-accent"
               v-for="task in filteredTasks"
               :key="task.id"
             >
@@ -98,7 +98,7 @@
               <td class="whitespace-nowrap">{{ task.formatedTask }}</td>
               <td>
                 <div class="dropdown dropdown-hover">
-                  <button class="btn btn-primary btn-sm">
+                  <button class="btn btn-secondary btn-sm">
                     ตัวเลือก
                   </button>
                   <ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-32 z-50">

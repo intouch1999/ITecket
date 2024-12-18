@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-red-200 min-h-screen h-auto">
+  <div class="bg-white min-h-screen h-auto">
     <div class="container mx-auto w-full p-4">
       <div v-if="pageLoading" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
         <div class="text-white text-center">
@@ -8,7 +8,7 @@
         </div>
       </div>
       <div
-        class="w-full sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-5xl card bg-secondary shadow-lg p-4 mx-auto mb-4 border-b-2 border-gray-200"
+        class="w-full sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-5xl card bg-purple-300 shadow-lg p-4 mx-auto mb-4 border-b-2 border-gray-200"
       >
         <div class="flex">
           <h1 class="text-2xl mx-auto">แจ้งปัญหาการใช้งาน</h1>
@@ -53,7 +53,7 @@
               </select>
             </label>
             <label for="file" class="form-control w-full sm:w-3/4 mb-2 items-center">
-              <div class="btn btn-primary w-3/4 sm:w-1/4">
+              <div class="btn btn-secondary w-3/4 sm:w-1/4">
                 Upload File
             </div>
             </label>
@@ -124,7 +124,7 @@
                 <button
                   @click="submitForm"
                   type="button"
-                  class="btn btn-primary"
+                  class="btn btn-secondary"
                 >
                   ยืนยัน
                 </button>
@@ -133,7 +133,7 @@
             <button
               @click="openModal"
               type="submit"
-              class="btn btn-primary w-3/4 sm:w-1/4 mx-auto block"
+              class="btn btn-secondary w-3/4 sm:w-1/4 mx-auto block"
             >
               ยืนยัน
             </button>

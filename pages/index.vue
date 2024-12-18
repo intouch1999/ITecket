@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-red-200">
+  <div class="bg-white">
     <div class="relative left-0 -bottom-4 z-10 mx-auto w-full md:w-4/5 flex flex-row">
       <div v-if="pageLoading" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
         <div class="text-white text-center">
@@ -7,20 +7,23 @@
           <p class="mt-2">กำลังโหลดข้อมูล...</p>
         </div>
       </div>
-      <div role="tablist" class="tabs tabs-boxed border-2 border-primary shadow">
+
+    </div>
+    <div class="container mx-auto w-full md:w-4/5 mt-4 ">
+      <div role="tablist" class="tabs tabs-lifted w-1/2">
         <a
           v-for="tab in tabs"
           :key="tab.value"
           role="tab"
-          class="tab"
-          :class="{ 'tab-active': currentTab === tab.value }"
+          class="tab bg-white"
+          :class="{ 'tab-active [--tab-bg:#d8b4fe]': currentTab === tab.value }"
           @click="currentTab = tab.value"
         >{{ tab.label }}</a>
       </div>
     </div>
-    <div class="container mx-auto w-full md:w-4/5 min-h-screen h-full card bg-primary rounded-2xl border-2 border-red-200 shadow-2xl">
+    <div class="container mx-auto w-full md:w-4/5 min-h-screen h-full rounded-b-2xl rounded-tr-2xl bg-purple-300  shadow-2xl mb-4">
       <div class="w-full flex flex-row p-4"></div>
-      <div class="w-1/2 flex flex-row p-4 bg-secondary text-primary-content rounded-r-2xl mb-4">
+      <div class="w-1/2 flex flex-row p-4 bg-accent text-primary-content rounded-r-2xl mb-4">
         <input :disabled="currentTab !== 'Pending'" type="checkbox" class="checkbox mr-2" :checked="isAllSelected" @change="handleSelectAll" />
         <p>เลือกทั้งหมด</p>
       </div>
@@ -37,7 +40,7 @@
         v-else
         v-for="(task, index) in filteredTasks"
         :key="task.id"
-        class="relative px-4 pt-4 pb-2 mx-4 text-xs card bg-accent my-2"
+        class="relative px-4 pt-4 pb-2 mx-4 text-xs card bg-white my-2"
       >
         <div class="absolute -top-2 left-5 w-2/6 inline-block">
           <div class="badge badge-secondary">
@@ -63,7 +66,7 @@
             </div>
           </div>
           <div class="flex justify-end items-center">
-            <button @click="handledInfo(task.id)" class="bg-primary text-primary-content rounded-full p-2 hover:bg-secondary duration-300 transition-colors">
+            <button @click="handledInfo(task.id)" class="bg-accent text-primary-content rounded-full p-2 hover:bg-secondary duration-300 transition-colors">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -91,7 +94,7 @@
 </div>
 <div     v-if="selectedTasks.length > 0">
   <div
-    class="fixed bottom-0 left-0 right-0 w-full flex flex-col bg-secondary text-primary-content p-4"
+    class="fixed bottom-0 left-0 right-0 w-full flex flex-col bg-accent text-primary-content p-4"
   >
     <div class="text-center my-2">
       ต้องการดำเนินการยกเลิก {{ selectedTasks.length }} รายการใช่หรือไม่
